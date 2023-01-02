@@ -35,9 +35,32 @@ func main() {
 	scheduler := tasks.New()
 	defer scheduler.Stop()
 
-	// Register tasks in the following format: metric name, start date, interval, db instance, scheduler instance, sql request
-	go registerTask("The total number of registrations per day", time.Now(), time.Duration(3*time.Second), db, scheduler, "select count(*) from registration where timestamp = '2022-12-22'")
-	go registerTask("The average weight for a registration for the most recent week", time.Now(), time.Duration(10*time.Second), db, scheduler, "select cast(ROUND(avg(weight)) as int) from registration where timestamp BETWEEN '2022-12-16' and '2022-12-22'")
+	/* Register tasks in the following format: 
+		metric name, 
+		start time, 
+		interval for execution of a task, 
+		db instance, 
+		scheduler instance, 
+		sql request
+	*/
+
+	go registerTask(
+		"The total number of registrations per day",
+		time.Now(),
+		time.Duration(3*time.Second),
+		db,
+		scheduler,
+		"select count(*) from registration where timestamp = '2022-12-22'",
+	)
+
+	go registerTask(
+		"The average weight for a registration for the most recent week", 
+		time.Now(), 
+		time.Duration(10*time.Second), 
+		db, 
+		scheduler, 
+		"select cast(ROUND(avg(weight)) as int) from registration where timestamp BETWEEN '2022-12-16' and '2022-12-22'",
+	)
 
 	// Block until Ctrl+C
 	c := make(chan os.Signal)
@@ -65,24 +88,27 @@ func getEnvDefault(name string, defaultValue string) string {
 	return defaultValue
 }
 
-
 func registerTask(metricName string, startDate time.Time, interval time.Duration, db *sql.DB, scheduler *tasks.Scheduler, query string) {
 	var metricValue interface{}
 
 	_, err := scheduler.Add(&tasks.Task{
-
 		Interval:   interval,
 		StartAfter: startDate,
 		TaskFunc: func() error {
 			err := db.QueryRow(query).Scan(&metricValue)
 			if err != nil {
 				log.Fatal(err)
-				return err
 			}
+
 			fmt.Printf("%s: %d\n", metricName, metricValue)
+
+			// store result in a map a
 			value := map[string]interface{}{metricName: metricValue}
 			jsonValue, _ := json.Marshal(value)
+
+			// send result via HTTP request to POST endpoint
 			http.Post("http://localhost:5000/result", "application/json", bytes.NewBuffer(jsonValue))
+
 			return nil
 		},
 	})
