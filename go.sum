@@ -1,0 +1,6 @@
+github.com/madflojo/tasks v1.0.4 h1:9pcztiBIw7BJYqStv+sckDNg+QO0/OHl7/0n6wfL0o8=
+github.com/madflojo/tasks v1.0.4/go.mod h1:8rVfjFGgxJ7aBxk4Ez/vHNKk5we9/DZDtzrBQbqsbkk=
+github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=
+github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
+github.com/rs/xid v1.3.0 h1:6NjYksEUlhurdVehpc7S7dk6DAmcKv8V9gG0FsVN2U4=
+github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
