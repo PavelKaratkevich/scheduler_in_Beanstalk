@@ -4,12 +4,11 @@ WORKDIR /build
 
 ## Install dependencies
 RUN apk update && apk add --no-cache build-base git
-COPY go.mod go.sum ./
+COPY . ./
 RUN go mod download
 
 ## Build application
-COPY main.go ./
-RUN go build -tags static_all,musl -o main .
+RUN go build -tags static_all,musl -o main ./cmd/main.go
 
 
 # Runner stage
