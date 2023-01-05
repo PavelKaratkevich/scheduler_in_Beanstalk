@@ -18,8 +18,6 @@ func StartNewScheduler() *tasks.Scheduler {
 	return scheduler
 }
 
-// ex.: each day at 1PM
-
 func RegisterTask(metricName string, startDate time.Time, interval time.Duration, db *sql.DB, scheduler *tasks.Scheduler, query string) {
 	var metricValue interface{}
 
@@ -32,8 +30,6 @@ func RegisterTask(metricName string, startDate time.Time, interval time.Duration
 				log.Fatal(err)
 			}
 
-			// fmt.Printf("%s: %d\n", metricName, metricValue)
-
 			// store result in a map a
 			value := map[string]interface{}{metricName: metricValue}
 			jsonValue, _ := json.Marshal(value)
@@ -41,7 +37,7 @@ func RegisterTask(metricName string, startDate time.Time, interval time.Duration
 			// send result via HTTP request to POST endpoint
 			_, err = http.Post("http://localhost:5000/result", "application/json", bytes.NewBuffer(jsonValue))
 			if err != nil {
-				log.Println(err)
+				log.Println(err.Error())
 			} else {
 				log.Printf("metric has been sent: %s: %d\n", metricName, metricValue)
 			}
