@@ -27,7 +27,7 @@ func RegisterTask(metricName string, startDate time.Time, interval time.Duration
 		TaskFunc: func() error {
 			err := db.QueryRow(query).Scan(&metricValue)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalln("Error while making SQL request: ", err)
 			}
 
 			// store result in a map a
@@ -35,7 +35,7 @@ func RegisterTask(metricName string, startDate time.Time, interval time.Duration
 			jsonValue, _ := json.Marshal(value)
 
 			// send result via HTTP request to POST endpoint
-			_, err = http.Post("http://localhost:5000/result", "application/json", bytes.NewBuffer(jsonValue))
+			_, err = http.Post("http://apiforscheduledtasks-env.eba-pr7nv2hg.eu-central-1.elasticbeanstalk.com/result", "application/json", bytes.NewBuffer(jsonValue))
 			if err != nil {
 				log.Println(err.Error())
 			} else {

@@ -17,4 +17,6 @@ RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /build/main .
 
+EXPOSE 5000
+
 CMD ["./main"]  

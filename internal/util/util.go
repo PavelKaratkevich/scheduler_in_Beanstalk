@@ -2,34 +2,51 @@ package util
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
-	"os"
-	"path/filepath"
+
+	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 )
 
-const (
-	DefaultDatabaseName = "db.sqlite"
-)
-
-var (
-	DataDir = getEnvDefault("DATA_DIR", "../data")
-)
-
-func ConnectDB() *sql.DB {
-	db, err := sql.Open("sqlite3", filepath.Join(DataDir, DefaultDatabaseName))
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return db
+type Config struct {
+	DBDriver string `mapstructure:"DB_DRIVER"`
+	DBSource string `mapstructure:"DB_SOURCE"`
 }
 
-// getEnvDefault return the value of the environment variable specified by name, or the defaultValue if not set
-func getEnvDefault(name string, defaultValue string) string {
-	if value, ok := os.LookupEnv(name); ok {
-		return value
+func ConnectDB() (*sql.DB, error) {
+
+	config, err := LoadEnvVars(".")
+	if err != nil {
+		log.Fatal("Error while loading env variables:", err.Error())
 	}
 
-	return defaultValue
+	db, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("Error while opening db: ", err.Error())
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func LoadEnvVars(path string) (config Config, err error) {
+	viper.AddConfigPath(path)  // path to look for the config file in
+	viper.SetConfigName("app") // name of config file (without extension)
+	viper.SetConfigType("env") // REQUIRED if the config file does not have the extension in the name
+
+	err = viper.ReadInConfig() // Find and read the config file
+	if err != nil {            // Handle errors reading the config file
+		panic(fmt.Errorf("fatal error config file: %w", err))
+	}
+
+	viper.AutomaticEnv() // allows to overwrite env variable from command line
+
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Fatal("Unable to load ennvironment variables: ", err.Error())
+		return
+	}
+
+	return config, err
 }

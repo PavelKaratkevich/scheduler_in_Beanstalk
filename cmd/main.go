@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"scheduler/internal/scheduler"
@@ -14,7 +15,10 @@ import (
 func main() {
 
 	// connect to the database
-	db := util.ConnectDB()
+	db, err := util.ConnectDB()
+	if err != nil {
+		log.Fatalln("Unable to establish connection with DB: ", err.Error())
+	}
 	defer db.Close()
 
 	// Start the scheduler
@@ -35,7 +39,8 @@ func main() {
 		time.Duration(3*time.Second),
 		db,
 		newScheduler,
-		"select count(*) from registration where timestamp = '2022-12-22'",
+		// "select count(*) from registration where timestamp = '2022-12-22'",
+		"select count(*) from registration",
 	)
 
 	go scheduler.RegisterTask(
@@ -44,7 +49,8 @@ func main() {
 		time.Duration(10*time.Second),
 		db,
 		newScheduler,
-		"select cast(ROUND(avg(weight)) as int) from registration where timestamp BETWEEN '2022-12-16' and '2022-12-22'",
+		// "select cast(ROUND(avg(weight)) as int) from registration where timestamp BETWEEN '2022-12-16' and '2022-12-22'",
+		"select cast(ROUND(avg(weight)) as int) from registration",
 	)
 
 	// Block until Ctrl+C
