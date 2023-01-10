@@ -14,9 +14,9 @@ type Config struct {
 	DBSource string `mapstructure:"DB_SOURCE"`
 }
 
-func ConnectDB() (*sql.DB, error) {
+func ConnectDB(envVarsPath string) (*sql.DB, error) {
 
-	config, err := LoadEnvVars(".")
+	config, err := LoadEnvVars(envVarsPath)
 	if err != nil {
 		log.Fatal("Error while loading env variables:", err.Error())
 	}
@@ -31,9 +31,24 @@ func ConnectDB() (*sql.DB, error) {
 }
 
 func LoadEnvVars(path string) (config Config, err error) {
-	viper.AddConfigPath(path)  // path to look for the config file in
 	viper.SetConfigName("app") // name of config file (without extension)
 	viper.SetConfigType("env") // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath(path)  // path to look for the config file in
+
+	viper.AddConfigPath("{PWD}")  // path to look for the config file in
+	viper.AddConfigPath("/internal/.")  // path to look for the config file in
+	viper.AddConfigPath("$HOME/internal/app.env")
+	viper.AddConfigPath("internal/.")  // path to look for the config file in
+	viper.AddConfigPath("internal/")  // path to look for the config file in
+	viper.AddConfigPath("/internal")  // path to look for the config file in
+	viper.AddConfigPath("/internal/")  // path to look for the config file in
+	viper.AddConfigPath("/scheduler/internal/")  // path to look for the config file in
+	viper.AddConfigPath("/build/")  // path to look for the config file in
+
+	viper.AddConfigPath("./")  // path to look for the config file in
+
+
+
 
 	err = viper.ReadInConfig() // Find and read the config file
 	if err != nil {            // Handle errors reading the config file

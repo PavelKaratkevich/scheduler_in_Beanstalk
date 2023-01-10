@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"scheduler/internal/scheduler"
@@ -9,13 +11,29 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	_ "github.com/mattn/go-sqlite3"
+)
+
+const (
+	DefaultPort = 5000
 )
 
 func main() {
 
+	go func() {
+		app := fiber.New()
+
+		// Routes
+		app.Get("/health", healthCheck)
+
+		// Start server
+		listenString := fmt.Sprintf(":%d", DefaultPort)
+		log.Fatal(app.Listen(listenString))
+	}()
+
 	// connect to the database
-	db, err := util.ConnectDB()
+	db, err := util.ConnectDB("./")
 	if err != nil {
 		log.Fatalln("Unable to establish connection with DB: ", err.Error())
 	}
@@ -25,12 +43,12 @@ func main() {
 	newScheduler := scheduler.StartNewScheduler()
 
 	/* Register tasks in the following format:
-		metric name,
-		start time for metric collection,
-		interval for execution of a task,
-		db instance,
-		scheduler instance,
-		sql request
+	metric name,
+	start time for metric collection,
+	interval for execution of a task,
+	db instance,
+	scheduler instance,
+	sql request
 	*/
 
 	go scheduler.RegisterTask(
@@ -58,4 +76,8 @@ func main() {
 	//nolint:govet,staticcheck
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	<-c
+}
+
+func healthCheck(c *fiber.Ctx) error {
+	return c.JSON(http.StatusOK)
 }
