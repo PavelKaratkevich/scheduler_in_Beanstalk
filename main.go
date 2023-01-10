@@ -33,7 +33,7 @@ func main() {
 	}()
 
 	// connect to the database
-	db, err := util.ConnectDB("./")
+	db, err := util.ConnectDB(".")
 	if err != nil {
 		log.Fatalln("Unable to establish connection with DB: ", err.Error())
 	}
@@ -54,7 +54,7 @@ func main() {
 	go scheduler.RegisterTask(
 		"The total number of registrations per day",
 		time.Now(),
-		time.Duration(3*time.Second),
+		time.Duration(5*time.Hour),
 		db,
 		newScheduler,
 		// "select count(*) from registration where timestamp = '2022-12-22'",
@@ -64,7 +64,7 @@ func main() {
 	go scheduler.RegisterTask(
 		"The average weight for a registration for the most recent week",
 		time.Now(),
-		time.Duration(10*time.Second),
+		time.Duration(5*time.Hour),
 		db,
 		newScheduler,
 		// "select cast(ROUND(avg(weight)) as int) from registration where timestamp BETWEEN '2022-12-16' and '2022-12-22'",
