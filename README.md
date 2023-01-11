@@ -1,2 +1,5 @@
-# scheduler_in_Beanstalk
-A scheduler performing tasks (queries) on an AWS RDS Postgres database, deployed in AWS Elastic Beanstalk and sending JSON to an external endpoint.
+# Custom Scheduler 
+
+The scheduler runs regular tasks (queries) on a database in AWS RDS and sends JSON files to an external endpoint.
+
+Deployed in AWS Elastic Beanstalk.
