@@ -12,7 +12,7 @@ RUN go build -tags static_all,musl -o main .
 
 
 # Runner stage
-FROM golang:1.4.2-onbuild
+FROM alpine:latest  
 RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /build/main .
