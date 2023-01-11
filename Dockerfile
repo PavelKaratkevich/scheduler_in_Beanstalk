@@ -11,12 +11,12 @@ RUN go mod download
 RUN go build -tags static_all,musl -o main .
 
 
-# # Runner stage
-# FROM golang:1.4.2-onbuild
-# RUN apk --no-cache add ca-certificates
+# Runner stage
+FROM golang:1.4.2-onbuild
+RUN apk --no-cache add ca-certificates
 
-# COPY --from=builder /build/main .
-# COPY --from=builder /build/app.env .
+COPY --from=builder /build/main .
+COPY --from=builder /build/app.env .
 
 EXPOSE 5000
 EXPOSE 5432
